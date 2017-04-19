@@ -1,7 +1,7 @@
-### Ansible AWS Example
-# This script sets up 2 Apache web-servers, and an NGINX web-server on Amazon Web Services, and connects them to an Elastic Load Balancer (ELB)
+# Ansible AWS Example
+## This script sets up 2 Apache web-servers, and an NGINX web-server on Amazon Web Services, and connects them to an Elastic Load Balancer (ELB)
 
-# To run this script
+## To run this script
 1) Edit the vars.yml file to add your AWS security credentials, aws_access_key, and aws_secret_key.
 You will also need to add your IP to the allowable IPs for access to the security group (see my_ip
 in the vars.yml file)
