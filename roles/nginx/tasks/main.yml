@@ -1,0 +1,35 @@
+---
+
+# roles/nginx/tasks/main.yml
+
+# Installs nginx and configures it
+
+# Use apt-get to install the latest version of Apache
+- name: Install nginx
+  apt: name=nginx update_cache=yes state=latest
+  notify:
+    - restart nginx
+
+- name: Configure to use port {{ nginx_http_port }}
+  template: src=default.j2 dest=/etc/nginx/sites-enabled/default
+  notify:
+    - restart nginx
+
+- name: Make the apache log directory
+  file: path=/var/log/tdcustom state=directory owner={{ nginx_user }}
+
+- name: Make the symbolic link to the log directory
+  file:
+    src: /var/log/nginx
+    dest: /var/log/tdcustom/accesslogs
+    state: link
+
+- name: Set nginx user to {{ nginx_user }}
+  lineinfile: dest=/etc/nginx/nginx.conf regexp="^user " line="user {{ nginx_user }};" state=present
+  notify:
+    - restart nginx
+
+- name: Copy index.html File
+  template: src=index.j2 dest=/usr/share/nginx/html/index.html
+  notify:
+    - restart nginx

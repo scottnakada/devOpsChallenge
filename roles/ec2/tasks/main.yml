@@ -1,0 +1,103 @@
+---
+
+# roles/ec2/tasks/main.yml
+
+# Create a security group for our instances and ELB
+# Basically the idea here is to allow SSH access
+# from your IP to the EC2 resources you will
+# start in your VPC.
+
+- name:               Create Security Group for instances
+  ec2_group:
+    name:             "{{ sg_instance_name }}"
+    description:      "{{ sg_instance_name }}"
+    vpc_id:           "{{ vpc_id }}"
+    region:           "{{ aws_region }}"
+    aws_access_key:   "{{ aws_access_key }}"
+    aws_secret_key:   "{{ aws_secret_key }}"
+    state:            "present"
+    rules:
+      - proto: tcp
+        from_port: 22
+        to_port: 22
+        cidr_ip:
+          - 0.0.0.0/0
+      - proto: tcp
+        from_port: 8900
+        to_port: 8900
+        cidr_ip:
+          - 0.0.0.0/0
+
+- name:                Create 2 EC2 instances to be configured as apache
+  ec2:
+    key_name:         "{{ aws_key_name }}"
+    instance_type:    "{{ instance_type }}"
+    image:            "{{ ami_id }}"
+    region:           "{{ aws_region }}"
+    vpc_subnet_id: "{{ my_public_subnet_1.subnet.id }}"
+    count_tag:
+      type:           "apache"
+    exact_count:      2
+    wait:             yes
+    assign_public_ip: yes
+    aws_access_key:   "{{ aws_access_key }}"
+    aws_secret_key:   "{{ aws_secret_key }}"
+    instance_tags:
+      Name:           "TD_apache"
+      function:       "webserver"
+      type:           "apache"
+    group:
+      - "{{ sg_instance_name }}"
+  register: apache_ec2
+
+- name: Add new instance to host group
+  add_host:
+    hostname: "{{ item.public_ip }}"
+    groupname: apache_ec2
+  with_items: "{{ apache_ec2.instances }}"
+
+- name:                Create 1 EC2 instances to be configured as nginx
+  ec2:
+    key_name:         "{{ aws_key_name }}"
+    instance_type:    "{{ instance_type }}"
+    image:            "{{ ami_id }}"
+    region:           "{{ aws_region }}"
+    vpc_subnet_id: "{{ my_public_subnet_2.subnet.id }}"
+    count_tag:
+      type:           "nginx"
+    exact_count:      1
+    wait:             yes
+    assign_public_ip: yes
+    aws_access_key:   "{{ aws_access_key }}"
+    aws_secret_key:   "{{ aws_secret_key }}"
+    instance_tags:
+      Name:           "TD_nginx"
+      function:       "webserver"
+      type:           "nginx"
+    group:
+      - "{{ sg_instance_name }}"
+  register: nginx_ec2
+
+- name: Add new instance to host group
+  add_host:
+    hostname: "{{ item.public_ip }}"
+    groupname: nginx_ec2
+  with_items: "{{ nginx_ec2.instances }}"
+
+- name: Wait for apache_ec2 SSH to come up
+  wait_for:
+    host: "{{ item.public_dns_name }}"
+    port: 22
+    delay: 60
+    timeout: 750
+    state: started
+  with_items: "{{ apache_ec2.instances }}"
+
+- name: Wait for nginx_ec2 SSH to come up
+  wait_for:
+    host: "{{ item.public_dns_name }}"
+    port: 22
+    delay: 60
+    timeout: 750
+    state: started
+  with_items: "{{ nginx_ec2.instances }}"

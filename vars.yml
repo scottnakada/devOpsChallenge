@@ -1,0 +1,39 @@
+---
+
+# AWS Credentials
+aws_access_key: "<AWS access key>"
+aws_secret_key: "<AWS secret key>"
+aws_region:     "us-west-2"
+
+# VPC Information
+vpc_name:       "scott-vpc"
+vpc_cidr_block: "10.0.0.0/16"
+
+# For Security Group Rule
+sg_name:        "scott-sg"
+my_ip:          "192.168.0.14/32"
+my_ip_s:        "10.35.0.159/32"
+td_ip:          "141.206.246.10/32"
+
+# Subnets
+public_subnet_1_cidr:  "10.0.0.0/24"
+public_subnet_2_cidr:  "10.0.1.0/24"
+
+# Instance Security Group Info
+sg_instance_name: "scott-inst-sg"
+
+# EC2 variables
+aws_key_name:   "scott_aws"
+ami_id:         "ami-5e63d13e"
+instance_type:  "t2.micro"
+
+# Apache Configuration
+http_port:      "8900"
+log_directory:  "/var/log/tdcustom/accesslogs"
+apache_user:    "www-data"
+apache_group:   "www-data"
+
+#Nginx Configuration
+nginx_http_port: "8900"
+nginx_log_directory:   "/var/log/tdcustom/accesslogs"
+nginx_user:      "www-data"

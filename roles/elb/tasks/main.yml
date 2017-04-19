@@ -1,0 +1,38 @@
+---
+
+# roles/elb/tasks/main.yml
+
+# Configures an ELB and registers instances
+
+# Create an Elastic Load Balancer
+- name: Create ELB
+  ec2_elb_lb:
+    name: "TD-ELB"
+    state: present
+    security_group_names:
+      - scott-sg
+    region: us-west-2
+    subnets:
+      - "{{ public_subnet_id_1 }}"
+      - "{{ public_subnet_id_2 }}"
+    listeners:
+      - protocol: http
+        load_balancer_port: 80
+        instance_port: 8900
+  register: td-elb
+
+- name: Add the apache webservers to the load balancer
+  ec2_elb:
+    instance_id: "{{ item.id }}"
+    ec2_elbs: TD-ELB
+    state: present
+    region: us-west-2
+  with_items: "{{ apache_ec2.tagged_instances }}"
+
+- name: Add the nginx webservers to the load balancer
+  ec2_elb:
+    instance_id: "{{ item.id }}"
+    ec2_elbs: TD-ELB
+    state: present
+    region: us-west-2
+  with_items: "{{ nginx_ec2.tagged_instances }}"

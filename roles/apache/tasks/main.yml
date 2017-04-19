@@ -1,0 +1,49 @@
+---
+
+# roles/apache/tasks/main.yml
+
+# Installs apache and configures it
+
+# Use apt-get to install the latest version of Apache
+- name: Install apache
+  apt: name=apache2 update_cache=yes state=latest
+
+# Have apache listen on http_port
+- name: apache2 listen on port {{ http_port }}
+  lineinfile: dest=/etc/apache2/ports.conf regexp="^Listen " line="Listen {{ http_port }}" state=present
+  notify:
+    - restart apache2
+
+- name: apache2 virtualhost on port {{ http_port }}
+  lineinfile: dest=/etc/apache2/sites-available/000-default.conf regexp="^<VirtualHost \*:" line="<VirtualHost *:{{ http_port }}>" state=present
+  notify:
+    - restart apache2
+
+- name: Make the apache log directory
+  file: path=/var/log/tdcustom state=directory owner={{ apache_user }} group={{ apache_group }}
+
+- name: Make the symbolic link to the log directory
+  file:
+    src: /var/log/apache2
+    dest: /var/log/tdcustom/accesslogs
+    state: link
+
+#- name: apache2 change log directory
+#  lineinfile: dest=/etc/apache2/envvars regexp="^export APACHE_LOG_DIR=" line="export APACHE_LOG_DIR={{ log_directory }}" state=present
+#  notify:
+#    - restart apache2
+
+- name: Set apache2 user to {{ apache_user }}
+  lineinfile: dest=/etc/apache2/envvars regexp="^export APACHE_RUN_USER=" line="export APACHE_RUN_USER={{ apache_user }}" state=present
+  notify:
+    - restart apache2
+
+- name: Set apache2 group to {{ apache_group }}
+  lineinfile: dest=/etc/apache2/envvars regexp="^export APACHE_RUN_GROUP=" line="export APACHE_RUN_GROUP={{ apache_group }}" state=present
+  notify:
+    - restart apache2
+
+- name: Copy Site File
+  template: src=index.j2 dest=/var/www/html/index.html
+  notify:
+    - restart apache2

@@ -1,0 +1,29 @@
+---
+# Starting Ansible playbook
+
+- hosts: localhost
+  roles:
+    - vpc
+    - ec2
+
+- hosts: apache_ec2
+  remote_user: ubuntu
+  become: yes
+  become_user: root
+  become_method: sudo
+  roles:
+    - apache
+
+- hosts: nginx_ec2
+  remote_user: ubuntu
+  become: yes
+  become_user: root
+  become_method: sudo
+  roles:
+    - nginx
+
+- hosts: localhost
+  gather_facts: False
+  connection: local
+  roles:
+    - elb

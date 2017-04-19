@@ -1,0 +1,9 @@
+---
+
+# roles/nginx/handlers/main.yml
+
+# Handlers for the nginx role
+
+# "restart nginx" handler - Uses service to restart nginx
+- name: restart nginx
+  service: name=nginx state=restarted

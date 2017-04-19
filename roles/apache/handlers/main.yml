@@ -1,0 +1,9 @@
+---
+
+# roles/apache/handlers/main.yml
+
+# Handlers for the apache role
+
+# "restart apache2" handler - Uses service to restart apache2
+- name: restart apache2
+  service: name=apache2 state=restarted
