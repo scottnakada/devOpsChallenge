@@ -52,3 +52,7 @@ The script will then:
 37) create an elastic load balancer
 38) add the apache_ec2 instances to the load balancer
 39) add the nginx_ec2 instancesto the load balancer
+
+The problem: ![Problem definition](codeChallengeDevOps.png "DevOpsChallenge")
+
+The solution: ![Problem solution](BlockDiagram.png "Solution Block Diagram"]
