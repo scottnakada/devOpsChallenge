@@ -55,4 +55,4 @@ The script will then:
 
 The problem: ![Problem definition](codeChallengeDevOps.png "DevOpsChallenge")
 
-The solution: ![Problem solution](BlockDiagram.png "Solution Block Diagram"]
+The solution: ![Problem solution](BlockDiagram.png "Solution Block Diagram")
